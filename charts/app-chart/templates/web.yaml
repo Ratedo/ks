@@ -39,8 +39,3 @@ spec:
         - name: nginx-conf
           configMap:
             name: {{ .Release.Name }}-nginx-config
-      # В контейнере backend добавьте жизненный цикл:
-      lifecycle:
-         postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 5 && chmod 666 /tmp/uvicorn.sock"]

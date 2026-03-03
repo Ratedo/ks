@@ -1,0 +1,129 @@
+# --- Prometheus ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus/prometheus.yml
+          subPath: prometheus.yml
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  type: NodePort
+  ports:
+    - port: 9090
+      nodePort: 32090
+  selector:
+    app: prometheus
+
+# --- Grafana ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin"
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      nodePort: 32000
+  selector:
+    app: grafana
+
+# --- Exporters (Node, Postgres, Nginx) ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exporters
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exporters
+  template:
+    metadata:
+      labels:
+        app: exporters
+    spec:
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter
+      - name: postgres-exporter
+        image: prometheuscommunity/postgres-exporter
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "postgresql://appuser:apppass@lab-database-postgres:5432/appdb?sslmode=disable"
+      - name: nginx-exporter
+        image: nginx/nginx-prometheus-exporter
+        command: ["-nginx.scrape-uri=http://lab-web-app-web:80/stub_status"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-monitoring-node-exporter
+spec:
+  ports: [{port: 9100}]
+  selector: {app: exporters}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-monitoring-postgres-exporter
+spec:
+  ports: [{port: 9187}]
+  selector: {app: exporters}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-monitoring-nginx-exporter
+spec:
+  ports: [{port: 9113}]
+  selector: {app: exporters}

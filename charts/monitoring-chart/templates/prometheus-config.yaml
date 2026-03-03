@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+    scrape_configs:
+      - job_name: "node"
+        static_configs:
+          - targets: ["lab-monitoring-node-exporter:9100"]
+      - job_name: "nginx"
+        static_configs:
+          - targets: ["lab-monitoring-nginx-exporter:9113"]
+      - job_name: "postgres"
+        static_configs:
+          - targets: ["lab-monitoring-postgres-exporter:9187"]
+      - job_name: "fastapi"
+        metrics_path: "/metrics"
+        static_configs:
+          - targets: ["lab-web-app-web:8000"]

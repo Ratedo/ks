@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-web
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+        - name: backend
+          image: {{ .Values.backend.image }}
+          env:
+            - name: DATABASE_URL
+              # тута собираем строку бдшки: postgresql://user:pass@service-name:port/db
+              value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@{{ .Release.Name }}-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.dbName }}"
+            - name: REDIS_URL
+              value: "redis://{{ .Release.Name }}-redis:{{ .Values.redis.port }}/0"
+          volumeMounts:
+            - name: shared-socket
+              mountPath: /tmp
+        - name: nginx
+          image: {{ .Values.nginx.image }}
+          volumeMounts:
+            - name: shared-socket
+              mountPath: /tmp
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: shared-socket
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: {{ .Release.Name }}-nginx-config

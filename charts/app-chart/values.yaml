@@ -1,27 +1,18 @@
-# мэйн настройки
 replicaCount: 1
 
-# моя бд
-postgres:
-  image: postgres:16
-  user: "appuser"
-  password: "apppass"
-  dbName: "appdb"
-  port: 5432
-
-# это реальный кеш
-redis:
-  image: redis:7
-  port: 6379
-
-# образ
 backend:
   image: ratedo/lab-backend:v1
   port: 8000
 
-# nginx
 nginx:
   image: nginx:1.27
   service:
     type: LoadBalancer
     port: 80
+
+# Эти данные нужны здесь для формирования DATABASE_URL в web.yaml
+postgres:
+  user: "appuser"
+  password: "apppass"
+  dbName: "appdb"
+  port: 5432

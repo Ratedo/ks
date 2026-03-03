@@ -16,6 +16,9 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true # Создаст namespace, если его нет
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -35,3 +38,28 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground # Более чистое удаление старых ресурсов
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lab-monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/Ratedo/ks.git'
+    targetRevision: HEAD
+    path: charts/monitoring-chart # Путь к вашему новому третьему блоку
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

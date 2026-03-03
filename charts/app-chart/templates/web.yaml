@@ -18,7 +18,7 @@ spec:
           env:
             - name: DATABASE_URL
               # тута собираем строку бдшки: postgresql://user:pass@service-name:port/db
-              value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@{{ .Release.Name }}-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.dbName }}"
+              value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@lab-database-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.dbName }}"
             - name: REDIS_URL
               value: "redis://{{ .Release.Name }}-redis:{{ .Values.redis.port }}/0"
           volumeMounts:

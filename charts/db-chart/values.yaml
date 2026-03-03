@@ -1,10 +1,9 @@
+# Эти значения используются внутри db.yaml
 postgres:
-  image: postgres:16
   user: "appuser"
   password: "apppass"
   dbName: "appdb"
   port: 5432
 
 redis:
-  image: redis:7
   port: 6379

@@ -17,10 +17,11 @@ spec:
           image: {{ .Values.backend.image }}
           env:
             - name: DATABASE_URL
-              # тута собираем строку бдшки: postgresql://user:pass@service-name:port/db
+              # Мы жестко указываем lab-database-postgres, так как база живет в другом приложении Argo
               value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@lab-database-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.dbName }}"
             - name: REDIS_URL
-              value: "redis://{{ .Release.Name }}-redis:{{ .Values.redis.port }}/0"
+              # То же самое для Redis
+              value: "redis://lab-database-redis:{{ .Values.redis.port }}/0"
           volumeMounts:
             - name: shared-socket
               mountPath: /tmp

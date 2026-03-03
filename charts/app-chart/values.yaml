@@ -10,9 +10,12 @@ nginx:
     type: LoadBalancer
     port: 80
 
-# Эти данные нужны здесь для формирования DATABASE_URL в web.yaml
+# Эти данные нужны для формирования строк подключения в web.yaml
 postgres:
   user: "appuser"
   password: "apppass"
   dbName: "appdb"
   port: 5432
+
+redis:
+  port: 6379

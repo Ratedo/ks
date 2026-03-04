@@ -102,7 +102,7 @@ spec:
           value: "postgresql://appuser:apppass@lab-database-postgres:5432/appdb?sslmode=disable"
       - name: nginx-exporter
         image: nginx/nginx-prometheus-exporter
-        command: ["-nginx.scrape-uri=http://lab-web-app-web:80/stub_status"]
+        args: ["-nginx.scrape-uri=http://lab-web-app-web:80/stub_status"]
 ---
 apiVersion: v1
 kind: Service

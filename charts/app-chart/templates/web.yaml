@@ -17,10 +17,8 @@ spec:
           image: {{ .Values.backend.image }}
           env:
             - name: DATABASE_URL
-              # Мы жестко указываем lab-database-postgres, так как база живет в другом приложении Argo
               value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@lab-database-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.dbName }}"
             - name: REDIS_URL
-              # То же самое для Redis
               value: "redis://lab-database-redis:{{ .Values.redis.port }}/0"
           volumeMounts:
             - name: shared-socket
@@ -39,3 +37,18 @@ spec:
         - name: nginx-conf
           configMap:
             name: {{ .Release.Name }}-nginx-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-web-service
+spec:
+  type: NodePort
+  selector:
+    app: web-app
+  ports:
+    - protocol: TCP
+      port: 80          # Порт внутри кластера
+      targetPort: 80    # Порт, который слушает Nginx
+      nodePort: 30081   # Внешний порт для доступа из браузера
